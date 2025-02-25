@@ -6,7 +6,18 @@ module Harfbuzz
 
   extend FFI::Library
 
-  ffi_lib 'harfbuzz'
+  lib_names = ['harfbuzz']
+
+  # Windows-specific logic
+  if RbConfig::CONFIG['host_os'] =~ /mswin|mingw|cygwin/
+    lib_names.unshift('libharfbuzz-0')
+
+    if defined?(RubyInstaller::Runtime)
+      RubyInstaller::Runtime.add_dll_directory("#{RbConfig::CONFIG['prefix']}/msys64/mingw64/bin")
+    end
+  end
+
+  ffi_lib(lib_names)
 
   typedef :pointer, :hb_destroy_func_t
   typedef :uint32,  :hb_codepoint_t
